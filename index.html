@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1級自動車整備士資格試験 学科試験対策</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        deepgreen: {
+                            DEFAULT: '#1b4332', // テーマアクセントカラー
+                            light: '#2d6a4f',
+                            dark: '#081c15',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 横スクロールバーを非表示にしつつスクロール可能にする設定 */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* スムーズスクロール */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 完了済みアイテムのスタイル */
+        .completed-text {
+            color: #9ca3af; /* text-gray-400 */
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-800 font-sans antialiased min-h-screen pb-24">
+
+    <!-- ヘッダー -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-lg font-bold text-deepgreen flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253"></path>
+                </svg>
+                1級自動車整備士 学科対策
+            </h1>
+        </div>
+    </header>
+
+    <!-- 検索・フィルターエリア -->
+    <section class="bg-white shadow-sm mb-4 sticky top-[60px] z-40 border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 py-3">
+            
+            <div class="relative mb-3">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" placeholder="問題タイトルやキーワードで検索..." 
+                    class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-deepgreen focus:border-deepgreen transition-colors text-base">
+            </div>
+
+            <div class="flex overflow-x-auto hide-scrollbar space-x-2 pb-1" id="categoryTabs">
+                <button data-category="すべて" class="category-btn whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium bg-deepgreen text-white transition-colors">
+                    すべて
+                </button>
+                <button data-category="エンジン" class="category-btn whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    エンジン
+                </button>
+                <button data-category="シャシ" class="category-btn whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    シャシ
+                </button>
+                <button data-category="故障診断" class="category-btn whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    故障診断
+                </button>
+                <button data-category="環境・安全" class="category-btn whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    環境・安全
+                </button>
+                <button data-category="法規" class="category-btn whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    法規
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- メインコンテンツ（問題リスト） -->
+    <main class="max-w-3xl mx-auto px-4 py-2">
+        
+        <div class="mb-4 flex justify-between items-center px-2">
+            <span class="text-sm text-gray-500 font-medium" id="progressText">全 0 問中 0 問完了</span>
+            <button id="clearProgressBtn" class="text-xs text-red-500 bg-red-50 px-2 py-1 rounded hover:bg-red-100 transition-colors">
+                進捗リセット
+            </button>
+        </div>
+
+        <div id="testList" class="space-y-3">
+            <!-- JavaScriptで動的にカードが生成されます -->
+        </div>
+
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-12 text-center">
+            <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-gray-500 font-medium">該当する問題が見つかりません</p>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * 【重要】問題データの追加方法
+         * 
+         * URLを追加する場合は、サイト上のUIからではなく、
+         * 以下の `quizData` 配列に直接データを追記してください。
+         * 
+         * フォーマット:
+         * {
+         *    id: "一意の英数字",
+         *    title: "表示される問題のタイトル",
+         *    category: "分野名（エンジン, シャシ, 故障診断, 環境・安全, 法規のいずれか）",
+         *    url: "リンク先のURL"
+         * }
+         */
+        const quizData = [
+            {
+                id: "engine_002",
+                title: "センサ基礎①",
+                category: "エンジン",
+                url: "https://kwnfactory2004.github.io/sensor1/"
+            },
+            {
+                id: "engine_003",
+                title: "センサ基礎②",
+                category: "エンジン",
+                url: "https://kwnfactory2004.github.io/sensor2/"
+            },
+            {
+                id: "engine_004",
+                title: "センサ基礎③",
+                category: "エンジン",
+                url: "https://kwnfactory2004.github.io/sensor3/"
+            }
+        ];
+
+        // --- 状態管理 ---
+        let currentCategory = "すべて";
+        let currentSearchQuery = "";
+        
+        // 完了した問題のIDを保存するSet
+        let completedIds = new Set();
+        
+        // LocalStorageのキー
+        const STORAGE_KEY = "auto_mechanic_grade1_progress";
+
+        // 初期化処理
+        function init() {
+            loadProgress();
+            renderList();
+            setupEventListeners();
+        }
+
+        // 完了状態の読み込み
+        function loadProgress() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    completedIds = new Set(parsed);
+                } catch (e) {
+                    console.error("進捗の読み込みに失敗しました", e);
+                    completedIds = new Set();
+                }
+            }
+        }
+
+        // 完了状態の保存（これがデータの保存機能）
+        function saveProgress() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(completedIds)));
+            updateProgressText();
+        }
+
+        // 進捗テキストの更新
+        function updateProgressText() {
+            const total = quizData.length;
+            const completed = completedIds.size;
+            document.getElementById('progressText').textContent = `全 ${total} 問中 ${completed} 問完了`;
+        }
+
+        // カテゴリ名から色を取得するヘルパー関数
+        function getCategoryColor(category) {
+            const colors = {
+                "エンジン": "bg-red-100 text-red-700",
+                "シャシ": "bg-blue-100 text-blue-700",
+                "故障診断": "bg-purple-100 text-purple-700",
+                "環境・安全": "bg-green-100 text-green-700",
+                "法規": "bg-orange-100 text-orange-700"
+            };
+            return colors[category] || "bg-gray-100 text-gray-700";
+        }
+
+        // リストの描画
+        function renderList() {
+            const listContainer = document.getElementById('testList');
+            const emptyState = document.getElementById('emptyState');
+            listContainer.innerHTML = '';
+
+            // フィルタリング処理
+            const filteredData = quizData.filter(item => {
+                // カテゴリフィルター
+                const matchCategory = currentCategory === "すべて" || item.category === currentCategory;
+                // 検索フィルター（タイトルのみ）
+                const matchSearch = item.title.toLowerCase().includes(currentSearchQuery.toLowerCase());
+                
+                return matchCategory && matchSearch;
+            });
+
+            // 該当なし表示の切り替え
+            if (filteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // カードの生成
+            filteredData.forEach(item => {
+                const isCompleted = completedIds.has(item.id);
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${isCompleted ? 'border-gray-200' : 'border-gray-100'} p-4 flex flex-col gap-3 transition-all`;
+                
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <!-- 完了チェックボタン -->
+                        <button onclick="toggleComplete('${item.id}')" class="flex-shrink-0 mt-0.5 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors ${isCompleted ? 'border-deepgreen bg-deepgreen text-white' : 'border-gray-300 text-transparent hover:border-deepgreen'}">
+                            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- コンテンツ -->
+                        <div class="flex-grow min-w-0">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold mb-2 ${getCategoryColor(item.category)}">
+                                ${item.category}
+                            </span>
+                            <h3 class="text-base font-bold leading-tight ${isCompleted ? 'completed-text' : 'text-gray-800'}">${item.title}</h3>
+                        </div>
+                    </div>
+                    
+                    <!-- アクション領域（下部） -->
+                    <div class="pt-2 mt-1 border-t border-gray-50 flex justify-end">
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-1.5 px-4 py-2 bg-deepgreen text-white text-sm font-semibold rounded-xl hover:bg-deepgreen-light active:bg-deepgreen-dark transition-colors shadow-sm w-full justify-center sm:w-auto">
+                            <span>問題を開く</span>
+                            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+                
+                listContainer.appendChild(card);
+            });
+
+            updateProgressText();
+        }
+
+        // 完了状態の切り替え
+        window.toggleComplete = function(id) {
+            if (completedIds.has(id)) {
+                completedIds.delete(id);
+            } else {
+                completedIds.add(id);
+            }
+            saveProgress();
+            renderList(); // UI再描画
+        };
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            
+            // 検索入力
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                currentSearchQuery = e.target.value;
+                renderList();
+            });
+
+            // カテゴリタブ切り替え
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // 全ボタンのスタイルをリセット
+                    categoryBtns.forEach(b => {
+                        b.classList.remove('bg-deepgreen', 'text-white');
+                        b.classList.add('bg-gray-100', 'text-gray-600');
+                    });
+
+                    // クリックされたボタンのスタイルをアクティブに
+                    const clickedBtn = e.currentTarget;
+                    clickedBtn.classList.remove('bg-gray-100', 'text-gray-600');
+                    clickedBtn.classList.add('bg-deepgreen', 'text-white');
+
+                    // 状態を更新して再描画
+                    currentCategory = clickedBtn.dataset.category;
+                    renderList();
+                });
+            });
+
+            // 進捗リセットボタン
+            document.getElementById('clearProgressBtn').addEventListener('click', () => {
+                if(confirm('記録されている「完了マーク」の進捗をすべてリセットしますか？')) {
+                    completedIds.clear();
+                    saveProgress();
+                    renderList();
+                }
+            });
+        }
+
+        // アプリケーション起動
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
