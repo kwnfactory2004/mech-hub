@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1級自動車整備士資格試験、学科試験対策</title>
+    
+    <!-- PWA / Mobile Capable Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#1b4332">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        deepgreen: {
+                            600: '#2d6a4f',
+                            700: '#1b4332',
+                            800: '#143326',
+                        }
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        }
+
+        @layer components {
+            /* Base Adjustments */
+            * { -webkit-tap-highlight-color: transparent; }
+            body { padding-bottom: 112px; }
+            
+            /* Category Chips */
+            .chip {
+                @apply px-5 py-3 rounded-full text-sm font-medium whitespace-nowrap bg-white text-slate-600 border border-slate-200 transition-all cursor-pointer shrink-0;
+            }
+            .chip:active {
+                @apply scale-95;
+            }
+            .chip.active {
+                @apply bg-deepgreen-700 text-white font-bold border-deepgreen-700 shadow-md;
+            }
+            
+            /* Forms & Buttons */
+            .form-input {
+                @apply w-full bg-white border border-slate-200 rounded-2xl p-4 text-base text-slate-800 shadow-sm focus:outline-none focus:border-deepgreen-600 focus:ring-2 focus:ring-deepgreen-600/20 appearance-none;
+            }
+            .btn {
+                @apply flex items-center justify-center w-full p-4 rounded-2xl text-base font-bold transition-all active:scale-95;
+            }
+            .btn-primary {
+                @apply bg-deepgreen-700 text-white shadow-sm hover:bg-deepgreen-800;
+            }
+            .btn-secondary {
+                @apply bg-white border border-slate-300 text-slate-700 hover:bg-slate-50;
+            }
+            .btn-light {
+                @apply bg-slate-100 text-slate-700 hover:bg-slate-200;
+            }
+            
+            /* Modals (Bottom Sheet) */
+            .modal-overlay {
+                @apply hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex-col justify-end sm:justify-center sm:items-center;
+            }
+            .modal-overlay.show {
+                @apply flex;
+            }
+            
+            /* Toast */
+            .toast {
+                @apply fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-medium z-[60] shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 w-[90%] max-w-sm text-center;
+            }
+            .toast.show {
+                @apply opacity-100;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+    <header class="sticky top-0 z-30 bg-deepgreen-700 text-white shadow-md">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+                <h1 class="text-base font-bold truncate">1級自動車整備士資格試験、学科試験対策</h1>
+            </div>
+            
+            <div class="flex items-center space-x-1 sm:space-x-2">
+                <button id="browserGuideBtn" class="p-3 -m-3 text-white/90 hover:bg-deepgreen-600 active:bg-deepgreen-800 rounded-full transition-colors" title="ブラウザで開く">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                    </svg>
+                </button>
+                <button id="adminToggleBtn" class="p-3 -m-3 text-white/90 hover:bg-deepgreen-600 active:bg-deepgreen-800 rounded-full transition-colors ml-2" title="管理者モード切り替え">
+                    <span id="adminIconContainer">
+                        <svg class="w-6 h-6 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto w-full px-4 mt-4 flex-1">
+        
+        <!-- Admin Banner -->
+        <div id="adminBanner" class="hidden mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl flex items-center justify-between text-sm font-medium">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                </svg>
+                <span>管理者モード有効</span>
+            </div>
+            <button id="lockAdminBtn" class="bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs active:scale-95 transition-transform">ロックする</button>
+        </div>
+
+        <!-- Search -->
+        <div class="relative mb-5">
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </div>
+            <input type="text" id="searchInput" class="form-input pl-11 pr-12" placeholder="テスト名やキーワードで検索...">
+            <button id="clearSearchBtn" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 p-3 hover:text-slate-600 active:scale-90 transition-transform">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Categories -->
+        <div class="mb-5 -mx-4 sm:mx-0">
+            <div class="flex overflow-x-auto no-scrollbar px-4 sm:px-0 space-x-2 pb-1" id="categoryTabs">
+                <button data-category="ALL" class="chip active">すべて</button>
+                <button data-category="エンジン" class="chip">エンジン</button>
+                <button data-category="シャシ" class="chip">シャシ</button>
+                <button data-category="故障診断" class="chip">故障診断</button>
+                <button data-category="環境・安全" class="chip">環境・安全</button>
+                <button data-category="法規" class="chip">法規</button>
+            </div>
+        </div>
+
+        <!-- Content List -->
+        <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-sm font-semibold text-slate-500" id="testCountLabel">登録テスト (0件)</span>
+        </div>
+
+        <div id="testGrid" class="space-y-4">
+            <!-- Cards rendered by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden py-10 text-center mt-4">
+            <div class="flex justify-center mb-4 text-slate-300">
+                <svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+            </div>
+            <h3 class="text-slate-700 font-bold text-lg mb-2">テストが登録されていません</h3>
+            <p class="text-sm text-slate-500 mb-4 leading-relaxed">
+                右下の「＋」ボタンから問題のURLを登録できます。<br>（※管理者のみ）
+            </p>
+        </div>
+    </main>
+
+    <div id="fabContainer" class="hidden fixed bottom-6 right-6 z-20">
+        <button id="openAddModalBtn" class="w-16 h-16 bg-deepgreen-700 text-white rounded-full flex items-center justify-center shadow-xl hover:bg-deepgreen-800 active:scale-90 transition-all">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="adminModal" class="modal-overlay">
+        <div class="bg-white w-full max-h-[90vh] overflow-y-auto rounded-t-3xl p-6 sm:max-w-md sm:rounded-3xl shadow-2xl animate-slide-up sm:animate-none">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-deepgreen-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span>管理者ログイン</span>
+                </h3>
+                <button class="closeModalBtn p-2 -mr-2 text-slate-400 hover:text-slate-600 rounded-full active:bg-slate-100 transition-colors">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-slate-600 text-sm mb-6">テストの追加・削除を行うにはパスワードを入力してください。</p>
+            <form id="adminForm" onsubmit="return false;">
+                <div class="mb-6">
+                    <input type="password" id="adminPasswordInput" placeholder="パスワードを入力" required class="form-input">
+                </div>
+                <div id="adminErrorMsg" class="hidden mb-5 text-sm font-medium flex items-center space-x-2 text-rose-600 bg-rose-50 p-4 rounded-xl">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>パスワードが正しくありません</span>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" class="closeModalBtn btn btn-secondary flex-1">キャンセル</button>
+                    <button type="submit" class="btn btn-primary flex-1">認証する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addModal" class="modal-overlay">
+        <div class="bg-white w-full max-h-[90vh] overflow-y-auto rounded-t-3xl p-6 sm:max-w-md sm:rounded-3xl shadow-2xl animate-slide-up sm:animate-none">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-deepgreen-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                    <span>新しいテストを登録</span>
+                </h3>
+                <button class="closeModalBtn p-2 -mr-2 text-slate-400 hover:text-slate-600 rounded-full active:bg-slate-100 transition-colors">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="addTestForm" onsubmit="return false;">
+                <div class="space-y-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">テストタイトル <span class="text-rose-500">*</span></label>
+                        <input type="text" id="testTitleInput" placeholder="例: 令和5年度 第1回 学科問題" required class="form-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">分野選択 <span class="text-rose-500">*</span></label>
+                        <select id="testCategorySelect" required class="form-input">
+                            <option value="エンジン">エンジン</option>
+                            <option value="シャシ">シャシ</option>
+                            <option value="故障診断">故障診断</option>
+                            <option value="環境・安全">環境・安全</option>
+                            <option value="法規">法規</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">問題のURL <span class="text-rose-500">*</span></label>
+                        <input type="url" id="testUrlInput" placeholder="https://example.com/quiz" required class="form-input">
+                        <p class="text-xs text-slate-400 mt-2">※`https://` は省略可能です。全角入力も自動補正されます。</p>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" class="closeModalBtn btn btn-secondary flex-1">キャンセル</button>
+                    <button type="submit" class="btn btn-primary flex-1">登録する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="browserGuideModal" class="modal-overlay">
+        <div class="bg-white w-full max-h-[90vh] overflow-y-auto rounded-t-3xl p-6 sm:max-w-md sm:rounded-3xl shadow-2xl animate-slide-up sm:animate-none">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-deepgreen-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                    </svg>
+                    <span>ブラウザで開く</span>
+                </h3>
+                <button class="closeModalBtn p-2 -mr-2 text-slate-400 hover:text-slate-600 rounded-full active:bg-slate-100 transition-colors">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                このアプリはChromeやSafariなどの通常のブラウザで開くことで、すべての問題が制限なく快適に開けるようになります。
+            </p>
+            <div class="mb-6 space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div class="bg-white p-3 rounded-xl border border-slate-100 overflow-hidden">
+                    <span id="currentAppUrlText" class="text-xs text-slate-500 font-mono block truncate"></span>
+                </div>
+                <button id="copyAppUrlBtn" class="btn btn-primary space-x-2">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    <span>URLをコピー</span>
+                </button>
+            </div>
+            <button type="button" class="closeModalBtn btn btn-light">閉じる</button>
+        </div>
+    </div>
+
+    <div id="fallbackModal" class="modal-overlay">
+        <div class="bg-white w-full max-h-[90vh] overflow-y-auto rounded-t-3xl p-6 sm:max-w-md sm:rounded-3xl shadow-2xl animate-slide-up sm:animate-none">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-deepgreen-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    <span>テストページを開く</span>
+                </h3>
+                <button class="closeModalBtn p-2 -mr-2 text-slate-400 hover:text-slate-600 rounded-full active:bg-slate-100 transition-colors">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                以下のボタンをタップしてテストページへ移動するか、URLをコピーしてブラウザに貼り付けてください。
+            </p>
+            <div class="space-y-4 mb-6">
+                <a id="fallbackDirectLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary space-x-2">
+                    <span>直接リンクを開く</span>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </a>
+                <button id="copyTestUrlBtn" class="btn btn-secondary space-x-2">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    <span>問題のURLをコピー</span>
+                </button>
+            </div>
+            <button type="button" class="closeModalBtn btn btn-light">キャンセル</button>
+        </div>
+    </div>
+
+    <div id="deleteConfirmModal" class="modal-overlay">
+        <div class="bg-white w-full max-h-[90vh] overflow-y-auto rounded-t-3xl p-6 sm:max-w-md sm:rounded-3xl shadow-2xl animate-slide-up sm:animate-none">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl flex items-center space-x-2 text-rose-600">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span>テストの削除</span>
+                </h3>
+            </div>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                このテストを削除しますか？<br>削除後は元に戻すことができず、他のユーザーからも見えなくなります。
+            </p>
+            <div class="flex space-x-3">
+                <button type="button" class="closeModalBtn btn btn-secondary flex-1">キャンセル</button>
+                <button type="button" id="confirmDeleteBtn" class="btn bg-rose-600 text-white shadow-sm hover:bg-rose-700 flex-1">削除する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Data and State
+        let tests = [];
+        let currentCategory = 'ALL';
+        let searchQuery = '';
+        let isAdmin = false;
+        const ADMIN_PASSWORD = '3255';
+        let targetFallbackUrl = '';
+        let pendingDeleteId = null;
+
+        // SVG Icons defined for dynamic usage
+        const SVGS = {
+            lock: `<svg class="w-6 h-6 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+            unlock: `<svg class="w-6 h-6 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`,
+            trash: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+            externalLink: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`
+        };
+
+        // Firebase Config
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mechanic-app';
+        let firebaseConfig = {};
+        try { firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}'); } catch(e) {}
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // URL Sanitization
+        function sanitizeUrl(rawUrl) {
+            if (!rawUrl) return '';
+            let url = rawUrl.replace(/[！-～]/g, function(s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+            }).replace(/　/g, ' ').trim();
+
+            url = url.replace(/：/g, ':').replace(/／/g, '/').replace(/．/g, '.');
+
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+            return url;
+        }
+
+        // Safe Open URL
+        window.openTestUrl = function(rawUrl) {
+            const cleanUrl = sanitizeUrl(rawUrl);
+            if (!cleanUrl) return;
+            try {
+                const win = window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                if (!win || win.closed || typeof win.closed === 'undefined') {
+                    showFallbackModal(cleanUrl);
+                }
+            } catch(e) {
+                showFallbackModal(cleanUrl);
+            }
+        };
+
+        function showFallbackModal(url) {
+            targetFallbackUrl = url;
+            document.getElementById('fallbackDirectLink').href = url;
+            const modal = document.getElementById('fallbackModal');
+            modal.classList.add('show');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            })[m]);
+        }
+
+        function getCategoryStyle(cat) {
+            switch(cat) {
+                case 'エンジン': return 'background-color: #fef3c7; color: #92400e;';
+                case 'シャシ': return 'background-color: #dbeafe; color: #1e40af;';
+                case '故障診断': return 'background-color: #d1fae5; color: #065f46;';
+                case '環境・安全': return 'background-color: #f3e8ff; color: #6b21a8;';
+                case '法規': return 'background-color: #ffe4e6; color: #9f1239;';
+                default: return 'background-color: #f1f5f9; color: #334155;';
+            }
+        }
+
+        function renderTests() {
+            const grid = document.getElementById('testGrid');
+            const emptyState = document.getElementById('emptyState');
+            const countLabel = document.getElementById('testCountLabel');
+
+            grid.innerHTML = '';
+
+            const filtered = tests.filter(test => {
+                const matchesCategory = (currentCategory === 'ALL' || test.category === currentCategory);
+                const query = searchQuery.toLowerCase();
+                const matchesSearch = !query || 
+                    (test.title && test.title.toLowerCase().includes(query)) ||
+                    (test.url && test.url.toLowerCase().includes(query));
+                return matchesCategory && matchesSearch;
+            });
+
+            filtered.sort((a, b) => b.createdAt - a.createdAt);
+            countLabel.textContent = `登録テスト (${filtered.length}件)`;
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                filtered.forEach(test => {
+                    const cleanUrl = sanitizeUrl(test.url);
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-[24px] p-6 border border-slate-200 shadow-sm transition-transform active:scale-[0.98]";
+
+                    const badgeStyle = getCategoryStyle(test.category);
+
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold" style="${badgeStyle}">
+                                ${escapeHtml(test.category || '未分類')}
+                            </span>
+                            ${isAdmin ? `
+                                <button onclick="deleteTest('${test.id}')" class="text-slate-300 hover:text-rose-500 p-2 -mr-2 -mt-2 active:scale-90 transition-transform" title="削除">
+                                    ${SVGS.trash}
+                                </button>
+                            ` : ''}
+                        </div>
+                        <h3 class="font-bold text-lg mb-3 leading-tight text-slate-800">
+                            ${escapeHtml(test.title)}
+                        </h3>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 font-mono text-xs text-slate-400 mb-5 truncate">
+                            ${escapeHtml(cleanUrl)}
+                        </div>
+                        <button onclick="openTestUrl('${escapeHtml(cleanUrl)}')" class="btn btn-primary space-x-2">
+                            <span>テストを開く（別タブ）</span>
+                            ${SVGS.externalLink}
+                        </button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        function showGlobalToast(message) {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+        }
+
+        window.deleteTest = function(id) {
+            if (!isAdmin || !currentUser) return;
+            pendingDeleteId = id;
+            document.getElementById('deleteConfirmModal').classList.add('show');
+        };
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            if (!isAdmin || !currentUser || !pendingDeleteId) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'tests', pendingDeleteId);
+                await deleteDoc(docRef);
+                showGlobalToast("削除しました");
+            } catch(e) {
+                console.error(e);
+                showGlobalToast("削除に失敗しました");
+            }
+            document.getElementById('deleteConfirmModal').classList.remove('show');
+            pendingDeleteId = null;
+        });
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUser = auth.currentUser;
+                
+                const testsRef = collection(db, 'artifacts', appId, 'public', 'data', 'tests');
+                onSnapshot(testsRef, (snapshot) => {
+                    tests = [];
+                    snapshot.forEach(docSnap => {
+                        tests.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+                    renderTests();
+                }, (error) => {
+                    console.error("Firestore error:", error);
+                    showGlobalToast("データの読み込みに失敗しました");
+                });
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                showGlobalToast("サーバーへの接続に失敗しました");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+
+            // Admin Logic
+            const adminToggleBtn = document.getElementById('adminToggleBtn');
+            const lockAdminBtn = document.getElementById('lockAdminBtn');
+            const adminIconContainer = document.getElementById('adminIconContainer');
+            const adminBanner = document.getElementById('adminBanner');
+            const fabContainer = document.getElementById('fabContainer');
+            const adminModal = document.getElementById('adminModal');
+
+            function updateAdminUI() {
+                if (isAdmin) {
+                    adminIconContainer.innerHTML = SVGS.unlock;
+                    adminBanner.classList.remove('hidden');
+                    fabContainer.classList.remove('hidden');
+                } else {
+                    adminIconContainer.innerHTML = SVGS.lock;
+                    adminBanner.classList.add('hidden');
+                    fabContainer.classList.add('hidden');
+                }
+                renderTests();
+            }
+
+            adminToggleBtn.addEventListener('click', () => {
+                if (isAdmin) {
+                    isAdmin = false;
+                    updateAdminUI();
+                } else {
+                    adminModal.classList.add('show');
+                    document.getElementById('adminPasswordInput').value = '';
+                    document.getElementById('adminErrorMsg').classList.add('hidden');
+                    setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+                }
+            });
+
+            lockAdminBtn.addEventListener('click', () => {
+                isAdmin = false;
+                updateAdminUI();
+            });
+
+            document.getElementById('adminForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const pwd = document.getElementById('adminPasswordInput').value.trim();
+                if (pwd === ADMIN_PASSWORD) {
+                    isAdmin = true;
+                    updateAdminUI();
+                    adminModal.classList.remove('show');
+                } else {
+                    document.getElementById('adminErrorMsg').classList.remove('hidden');
+                }
+            });
+
+            // Add Test Modal
+            const addModal = document.getElementById('addModal');
+            document.getElementById('openAddModalBtn').addEventListener('click', () => {
+                if (!isAdmin) return;
+                addModal.classList.add('show');
+                document.getElementById('testTitleInput').value = '';
+                document.getElementById('testUrlInput').value = '';
+            });
+
+            document.getElementById('addTestForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!isAdmin) return;
+
+                const title = document.getElementById('testTitleInput').value.trim();
+                const category = document.getElementById('testCategorySelect').value;
+                const rawUrl = document.getElementById('testUrlInput').value.trim();
+                const cleanUrl = sanitizeUrl(rawUrl);
+
+                if (!title || !cleanUrl) return;
+
+                const newTest = {
+                    title: title,
+                    category: category,
+                    url: cleanUrl,
+                    createdAt: Date.now()
+                };
+
+                addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'tests'), newTest)
+                    .then(() => {
+                        showGlobalToast("新しいテストを登録しました");
+                        addModal.classList.remove('show');
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        showGlobalToast("登録に失敗しました");
+                    });
+            });
+
+            // Category Filter
+            document.getElementById('categoryTabs').addEventListener('click', (e) => {
+                if (e.target.classList.contains('chip')) {
+                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.getAttribute('data-category');
+                    renderTests();
+                }
+            });
+
+            // Search
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.trim();
+                if (searchQuery) clearSearchBtn.classList.remove('hidden');
+                else clearSearchBtn.classList.add('hidden');
+                renderTests();
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                clearSearchBtn.classList.add('hidden');
+                renderTests();
+            });
+
+            // Browser Guide & Copy
+            const browserGuideModal = document.getElementById('browserGuideModal');
+            document.getElementById('browserGuideBtn').addEventListener('click', () => {
+                document.getElementById('currentAppUrlText').textContent = window.location.href;
+                browserGuideModal.classList.add('show');
+            });
+
+            document.getElementById('copyAppUrlBtn').addEventListener('click', () => {
+                copyToClipboard(window.location.href, "アプリのURLをコピーしました！");
+            });
+
+            document.getElementById('copyTestUrlBtn').addEventListener('click', () => {
+                if (targetFallbackUrl) copyToClipboard(targetFallbackUrl, "問題のURLをコピーしました！");
+            });
+
+            function copyToClipboard(text, successMsg) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(() => showToast(successMsg))
+                    .catch(() => fallbackCopy(text, successMsg));
+                } else {
+                    fallbackCopy(text, successMsg);
+                }
+            }
+
+            function fallbackCopy(text, successMsg) {
+                let textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    if(document.execCommand('copy')) showToast(successMsg);
+                } catch (err) {}
+                document.body.removeChild(textArea);
+            }
+
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // Modal Closing Logic
+            document.querySelectorAll('.closeModalBtn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+                });
+            });
+            
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.remove('show');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
